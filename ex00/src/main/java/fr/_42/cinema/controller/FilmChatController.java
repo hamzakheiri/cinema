@@ -2,7 +2,6 @@ package fr._42.cinema.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr._42.cinema.models.ChatMessage;
-import fr._42.cinema.services.ChatMessagesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +37,7 @@ public class FilmChatController {
     @MessageMapping("/films/{filmId}/chat/send")
     @SendTo("/topic/films/{filmId}/chat/messages")
     public ChatMessage sendMessage(
-            @DestinationVariable Long filmId,
+            @DestinationVariable("filmId")  Long filmId,
             @Payload ChatMessage chatMessage
     ) {
         // Enhanced logging to debug message receipt
@@ -56,35 +53,35 @@ public class FilmChatController {
         return chatMessage;
     }
 
-    @MessageMapping("/films/{filmId}/chat/send-string")
-    @SendTo("/topic/films/{filmId}/chat/messages")
-    public ChatMessage sendStringMessage(
-            @DestinationVariable Long filmId,
-            @Payload String messageString
-    ) {
-        // Enhanced logging to debug message receipt
-        logger.info("========== CHAT MESSAGE RECEIVED (STRING) ==========");
-        logger.info("Received string message for film {}: {}", filmId, messageString);
-        System.out.println("String message received for film " + filmId + ": " + messageString);
-
-        // Try to convert the string to a ChatMessage object
-        ChatMessage chatMessage;
-        try {
-            chatMessage = objectMapper.readValue(messageString, ChatMessage.class);
-            logger.info("Successfully converted string to ChatMessage: {}", chatMessage);
-        } catch (IOException e) {
-            logger.warn("Could not convert string to ChatMessage, creating a default one: {}", e.getMessage());
-            // Create a default ChatMessage if conversion fails
-            chatMessage = new ChatMessage("system", messageString);
-        }
-
-        // Also send directly using messagingTemplate as a backup
-        messagingTemplate.convertAndSend("/topic/films/" + filmId + "/chat/messages", chatMessage);
-
-        // Return the message for broadcasting
-        logger.info("Returning message for broadcasting");
-        return chatMessage;
-    }
+//    @MessageMapping("/films/{filmId}/chat/send-string")
+//    @SendTo("/topic/films/{filmId}/chat/messages")
+//    public ChatMessage sendStringMessage(
+//            @DestinationVariable("filmId")  Long filmId,
+//            @Payload String messageString
+//    ) {
+//        // Enhanced logging to debug message receipt
+//        logger.info("========== CHAT MESSAGE RECEIVED (STRING) ==========");
+//        logger.info("Received string message for film {}: {}", filmId, messageString);
+//        System.out.println("String message received for film " + filmId + ": " + messageString);
+//
+//        // Try to convert the string to a ChatMessage object
+//        ChatMessage chatMessage;
+//        try {
+//            chatMessage = objectMapper.readValue(messageString, ChatMessage.class);
+//            logger.info("Successfully converted string to ChatMessage: {}", chatMessage);
+//        } catch (IOException e) {
+//            logger.warn("Could not convert string to ChatMessage, creating a default one: {}", e.getMessage());
+//            // Create a default ChatMessage if conversion fails
+//            chatMessage = new ChatMessage("system", messageString);
+//        }
+//
+//        // Also send directly using messagingTemplate as a backup
+//        messagingTemplate.convertAndSend("/topic/films/" + filmId + "/chat/messages", chatMessage);
+//
+//        // Return the message for broadcasting
+//        logger.info("Returning message for broadcasting");
+//        return chatMessage;
+//    }
 
 
     // Serve the chat page for a specific film
