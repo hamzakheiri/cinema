@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Film Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Film Chat</h2>
+    <div>
+        <input type="text" id="filmId" placeholder="Film ID">
+        <input type="text" id="username" placeholder="Your Name">
+        <button onclick="connect()">Join Chat</button>
+    </div>
+    <div>
+        <input type="text" id="messageInput" placeholder="Type message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div id="messages"></div>
+
+    <script>
+        let stompClient = null;
+        
+        function connect() {
+            const filmId = document.getElementById('filmId').value;
+            const socket = new SockJS('http://localhost:8080/ex00_war/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, () => {
+                stompClient.subscribe(`/topic/films/${filmId}/chat/messages`, (message) => {
+                    const msg = JSON.parse(message.body);
+                    displayMessage(msg.user + ": " + msg.text);
+                });
+            });
+        }
+
+        function sendMessage() {
+            const filmId = document.getElementById('filmId').value;
+            const username = document.getElementById('username').value;
+            const message = document.getElementById('messageInput').value;
+            
+            if (stompClient && stompClient.connected) {
+                stompClient.send(
+                    `/app/films/${filmId}/chat/send`,
+                    {},
+                    JSON.stringify({ user: username, text: message })
+                );
+                document.getElementById('messageInput').value = '';
+            }
+        }
+
+        function displayMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += `<p>${message}</p>`;
+        }
+    </script>
+</body>
+</html>
