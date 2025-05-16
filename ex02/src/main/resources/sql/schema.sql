@@ -1,4 +1,4 @@
-drop table if exists users cascade;
+drop table if exists users;
 create table if not exists users(
     id serial primary key,
     first_name varchar(255),
@@ -8,7 +8,7 @@ create table if not exists users(
     password varchar(255)
 );
 
-drop table if exists authentication_logs cascade;
+drop table if exists authentication_logs;
 create table if not exists authentication_logs(
     id serial primary key,
     user_id integer,
@@ -16,7 +16,7 @@ create table if not exists authentication_logs(
     ip_addr varchar(255)
 );
 
-drop table if exists images_info cascade;
+drop table if exists images_info;
 create table if not exists images_info(
     id serial primary key,
     user_id integer,

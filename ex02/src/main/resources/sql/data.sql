@@ -6,7 +6,7 @@ VALUES
 
 
 
-INSERT INTO films (age_restrictions, description, title, year)
+INSERT INTO films (age_restrictions, description, title, year, poster_url)
 VALUES (13, 'Thriller about dreams', 'Inception', 2010),
        (18, 'Crime drama', 'The Departed', 2006),
        (0, 'Family adventure', 'The Incredibles', 2004),

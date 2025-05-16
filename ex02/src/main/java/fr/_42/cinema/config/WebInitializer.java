@@ -10,11 +10,8 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.util.WebUtils;
 
-/**
- * Application initializer that sets up the Spring application context
- * when deployed to a servlet container like Tomcat.
- */
 public class WebInitializer implements WebApplicationInitializer {
     private static final Logger logger = LoggerFactory.getLogger(WebInitializer.class);
 
@@ -38,13 +35,12 @@ public class WebInitializer implements WebApplicationInitializer {
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", dispatcherServlet);
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
-
-        // Configure multipart support for file uploads
         dispatcher.setMultipartConfig(new MultipartConfigElement("/tmp", 2097152, 4194304, 0));
 
         // Enable async support for WebSocket
         dispatcher.setAsyncSupported(true);
 
+        logger.info("DispatcherServlet configured with mappings: /");
         logger.info("Web application initialization completed");
     }
 }

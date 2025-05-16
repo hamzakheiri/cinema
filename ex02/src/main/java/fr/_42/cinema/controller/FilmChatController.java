@@ -23,12 +23,14 @@ import java.util.Map;
 public class FilmChatController {
     private static final Logger log = LoggerFactory.getLogger(FilmChatController.class);
     private final SimpMessagingTemplate messagingTemplate;
+//    private final ChatMessagesService chatMessagesService;
     private final Logger logger = LoggerFactory.getLogger(FilmChatController.class);
     private final ObjectMapper objectMapper;
 
     @Autowired
     public FilmChatController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
+//        this.chatMessagesService = chatMessagesService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -50,6 +52,37 @@ public class FilmChatController {
         logger.info("Returning message for broadcasting");
         return chatMessage;
     }
+
+//    @MessageMapping("/films/{filmId}/chat/send-string")
+//    @SendTo("/topic/films/{filmId}/chat/messages")
+//    public ChatMessage sendStringMessage(
+//            @DestinationVariable("filmId")  Long filmId,
+//            @Payload String messageString
+//    ) {
+//        // Enhanced logging to debug message receipt
+//        logger.info("========== CHAT MESSAGE RECEIVED (STRING) ==========");
+//        logger.info("Received string message for film {}: {}", filmId, messageString);
+//        System.out.println("String message received for film " + filmId + ": " + messageString);
+//
+//        // Try to convert the string to a ChatMessage object
+//        ChatMessage chatMessage;
+//        try {
+//            chatMessage = objectMapper.readValue(messageString, ChatMessage.class);
+//            logger.info("Successfully converted string to ChatMessage: {}", chatMessage);
+//        } catch (IOException e) {
+//            logger.warn("Could not convert string to ChatMessage, creating a default one: {}", e.getMessage());
+//            // Create a default ChatMessage if conversion fails
+//            chatMessage = new ChatMessage("system", messageString);
+//        }
+//
+//        // Also send directly using messagingTemplate as a backup
+//        messagingTemplate.convertAndSend("/topic/films/" + filmId + "/chat/messages", chatMessage);
+//
+//        // Return the message for broadcasting
+//        logger.info("Returning message for broadcasting");
+//        return chatMessage;
+//    }
+
 
     // Serve the chat page for a specific film
     @GetMapping("/films/{id}/chat")
@@ -119,5 +152,41 @@ public class FilmChatController {
         }
 
         return response;
+    }
+
+    @MessageMapping("/test")
+    @SendTo("/topic/test")
+    public String handleTestMessage(String message){
+        logger.info("========== TEST MESSAGE RECEIVED ==========");
+        logger.info("Test message received: {}", message);
+        System.out.println("Test message received: " + message);
+
+        try {
+            // Try to parse the message if it's a JSON string
+            String processedMessage = message;
+            if (message != null && message.startsWith("\"") && message.endsWith("\"")) {
+                // This might be a JSON string that needs to be unquoted
+                processedMessage = message.substring(1, message.length() - 1);
+                logger.info("Unquoted message: {}", processedMessage);
+            }
+
+            // Echo the message back to the test topic
+            String echoMessage = "Echo: " + processedMessage;
+            logger.info("Preparing echo message for return: {}", echoMessage);
+
+            // Also send a message to the chat topic to test if it's working
+            logger.info("Sending test message to chat topic");
+            messagingTemplate.convertAndSend("/topic/films/1/chat/messages", new ChatMessage("system", "Test broadcast: " + message));
+            logger.info("Successfully sent test message to chat topic");
+
+            // Return the echo message to be sent to the topic specified in @SendTo
+            return echoMessage;
+        } catch (Exception e) {
+            logger.error("Error processing message: {}", e.getMessage(), e);
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
+        } finally {
+            logger.info("========== TEST MESSAGE PROCESSING COMPLETE ==========");
+        }
     }
 }
