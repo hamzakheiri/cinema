@@ -6,10 +6,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import java.io.IOException;
 
 /**
  * Application initializer that sets up the Spring application context
@@ -27,8 +31,26 @@ public class WebInitializer implements WebApplicationInitializer {
         rootContext.register(AppConfig.class);
         servletContext.addListener(new ContextLoaderListener(rootContext));
         logger.info("Root context initialized with AppConfig");
+        String webInfPath = servletContext.getRealPath("/WEB-INF");
 
-        // Web context (WebConfig - controllers, view resolvers, WebSocket)
+        // Set a system property to store the WEB-INF path
+        System.setProperty("webinf.path", webInfPath);
+
+        // Register configuration classes
+        rootContext.register(AppConfig.class);
+
+        // Load properties from WEB-INF
+        try {
+            ResourcePropertySource propertySource = new ResourcePropertySource(
+                    "file:" + webInfPath + "/application.properties");
+            rootContext.getEnvironment().getPropertySources().addFirst(propertySource);
+            logger.info("Application properties loaded from WEB-INF");
+        } catch (IOException e) {
+            // Log error
+            System.err.println("Could not load properties: " + e.getMessage());
+            logger.error("Could not load properties: " + e.getMessage());
+        }       // Web context (WebConfig - controllers, view resolvers, WebSocket)
+
         AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
         webContext.register(WebConfig.class, WebSocketConfig.class);
         logger.info("Web context initialized with WebConfig and WebSocketConfig");

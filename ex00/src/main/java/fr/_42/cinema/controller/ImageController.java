@@ -3,6 +3,7 @@ package fr._42.cinema.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,11 +20,13 @@ import java.nio.file.Paths;
 @RestController
 public class ImageController {
 
-    private final String imageDir = "C:\\Users\\hamza\\Desktop\\sample-images";
+    @Value("${posterUpload.dir}")
+    private String imageDir;
     private final Logger logger = LoggerFactory.getLogger(ImageController.class);
 
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<byte[]> serveImage(@PathVariable("filename") String filename) {
+        logger.info("imageDir: {}", imageDir);
         logger.info("Serving image: " + filename);
         try {
             Path file = Paths.get(imageDir).resolve(filename);

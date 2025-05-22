@@ -5,6 +5,7 @@ import fr._42.cinema.services.FilmsService;
 import jdk.jshell.spi.ExecutionControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,9 @@ import java.util.UUID;
 public class FilmsController {
     private FilmsService filmsService;
     final private Logger logger = LoggerFactory.getLogger(FilmsController.class);
+
+    @Value("${posterUpload.dir}")
+    String uploadDirS;
 
     public FilmsController(FilmsService filmsService) {
         this.filmsService = filmsService;
@@ -59,7 +63,6 @@ public class FilmsController {
         String posterUrl = null;
         if (!poster.isEmpty()){
             try {
-                String uploadDirS = "C:\\Users\\hamza\\Desktop\\sample-images";
                 File uploadDir = new File(uploadDirS);
                 if (!uploadDir.exists())
                     uploadDir.mkdirs();

@@ -6,9 +6,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -22,15 +24,29 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories("fr._42.cinema.repositories")
 @ComponentScan(basePackages = "fr._42.cinema.services")
+@Import(PropertyConfig.class)
 public class AppConfig {
+
+    @Value("${db.url}")
+    private String dbUrl;
+
+    @Value("${db.username}")
+    private String dbUsername;
+
+    @Value("${db.password}")
+    private String dbPassword;
+
+    @Value("${db.driver}")
+    private String dbDriver;
 
     @Bean
     public DataSource dataSource() {
+
         HikariConfig config = new HikariConfig();
-        config.setDriverClassName("org.postgresql.Driver");
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
-        config.setUsername("postgres");
-        config.setPassword("postgres");
+        config.setDriverClassName(dbDriver);
+        config.setJdbcUrl(dbUrl);
+        config.setUsername(dbUsername);
+        config.setPassword(dbPassword);
         return new HikariDataSource(config);
     }
 
