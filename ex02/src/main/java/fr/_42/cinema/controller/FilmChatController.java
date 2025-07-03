@@ -23,14 +23,12 @@ import java.util.Map;
 public class FilmChatController {
     private static final Logger log = LoggerFactory.getLogger(FilmChatController.class);
     private final SimpMessagingTemplate messagingTemplate;
-//    private final ChatMessagesService chatMessagesService;
     private final Logger logger = LoggerFactory.getLogger(FilmChatController.class);
     private final ObjectMapper objectMapper;
 
     @Autowired
     public FilmChatController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
-//        this.chatMessagesService = chatMessagesService;
         this.objectMapper = new ObjectMapper();
     }
 

@@ -43,12 +43,9 @@ public class SignupController {
         }
         User user = new User(null, firstName, lastName, email, password, phoneNumber);
         try {
-            // Attempt to sign up the user
             usersService.signUp(user);
-//            return "redirect:/signin";
             return "done";
         } catch (Exception e) {
-            // Optionally, log the exception here
             model.addAttribute("error", "An error occurred during sign-up. Please try again.");
             return "error";
         }

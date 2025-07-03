@@ -52,7 +52,7 @@ public class WebInitializer implements WebApplicationInitializer {
         }       // Web context (WebConfig - controllers, view resolvers, WebSocket)
 
         AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
-        webContext.register(WebConfig.class, WebSocketConfig.class);
+        webContext.register(WebConfig.class);
         logger.info("Web context initialized with WebConfig and WebSocketConfig");
 
         // DispatcherServlet for web components
@@ -62,10 +62,11 @@ public class WebInitializer implements WebApplicationInitializer {
         dispatcher.addMapping("/");
 
         // Configure multipart support for file uploads
-        dispatcher.setMultipartConfig(new MultipartConfigElement("/tmp", 2097152, 4194304, 0));
+        dispatcher.setMultipartConfig(new MultipartConfigElement("\\\\wsl.localhost\\Ubuntu\\tmp", 2097152, 4194304, 0));
 
-        // Enable async support for WebSocket
-        dispatcher.setAsyncSupported(true);
+
+//        // Enable async support for WebSocket
+//        dispatcher.setAsyncSupported(true);
 
         logger.info("Web application initialization completed");
     }

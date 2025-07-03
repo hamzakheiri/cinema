@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>spring-freemarker-demo</artifactId>
+    <artifactId>spring-freemarker</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 

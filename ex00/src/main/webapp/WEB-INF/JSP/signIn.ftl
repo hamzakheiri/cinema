@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sign Up</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.i2/css/bootstrap.min.css">
+    <title>Sign In</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             background-color: #f8f9fa;
@@ -28,7 +29,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="signup-container">
-                <h2 class="text-center signup-header">Sign Up</h2>
+                <h2 class="text-center signup-header">Sign In</h2>
                 <#assign ctx = request.contextPath>
                 <form action="${ctx}/admin/signin" method="post">
                     <div class="form-group">
@@ -40,12 +41,13 @@
                         <input type="password" class="form-control" id="password" name="password" placeholder="Password"
                                required>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">SignIn</button>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<!-- jQuery and Bootstrap JS Bundle (includes Popper) -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

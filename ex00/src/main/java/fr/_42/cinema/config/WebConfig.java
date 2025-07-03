@@ -61,5 +61,4 @@ public class WebConfig implements WebMvcConfigurer {
         logger.info("Async support configured with timeout: 30000ms");
     }
 
-    // CORS configuration is handled by CorsConfig class
 }
