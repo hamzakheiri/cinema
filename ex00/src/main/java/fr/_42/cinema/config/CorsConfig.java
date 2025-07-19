@@ -18,25 +18,12 @@ public class CorsConfig {
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Allow all origins using patterns (more secure than using "*" with allowCredentials)
         config.addAllowedOriginPattern("*");
-        
-        // Allow all HTTP methods
         config.addAllowedMethod("*");
-        
-        // Allow all headers
         config.addAllowedHeader("*");
-        
-        // Allow cookies and auth headers
         config.setAllowCredentials(true);
-        
-        // How long the browser should cache the CORS response in seconds
         config.setMaxAge(3600L);
-        
-        // Apply this configuration to all paths
         source.registerCorsConfiguration("/**", config);
-        
         logger.info("CORS filter configured successfully");
         return new CorsFilter(source);
     }

@@ -62,7 +62,7 @@ public class WebInitializer implements WebApplicationInitializer {
         dispatcher.addMapping("/");
 
         // Configure multipart support for file uploads
-        dispatcher.setMultipartConfig(new MultipartConfigElement("\\\\wsl.localhost\\Ubuntu\\tmp", 2097152, 4194304, 0));
+        dispatcher.setMultipartConfig(new MultipartConfigElement("/tmp", 2097152, 4194304, 0));
 
 
         // Enable async support for WebSocket

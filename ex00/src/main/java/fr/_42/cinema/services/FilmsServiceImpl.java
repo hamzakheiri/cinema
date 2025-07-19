@@ -3,17 +3,18 @@ package fr._42.cinema.services;
 import fr._42.cinema.models.Film;
 import fr._42.cinema.repositories.FilmsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class FilmsServiceImpl implements FilmsService {
-    private FilmsRepository filmsRepository;
+    private final FilmsRepository filmsRepository;
 
 
     @Autowired
-    public FilmsServiceImpl(FilmsRepository filmsRepository) {
+    public FilmsServiceImpl(@Qualifier("filmsRepository") FilmsRepository filmsRepository) {
         this.filmsRepository = filmsRepository;
     }
 

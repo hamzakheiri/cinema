@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,32 +52,33 @@ public class SessionsController {
             model.addAttribute("halls", halls);
         } catch (Exception e) {
             model.addAttribute("error", "An error occurred while fetching data from the database");
-        } finally {
-            return "sessions";
         }
+        return "sessions";
+
     }
 
     @PostMapping(value = {"", "/"})
     public String postSessions(
             @RequestParam("filmId") Long filmId,
             @RequestParam("hallId") Long hallId,
-            @RequestParam("sessionTime") @DateTimeFormat(pattern="yyyy-MM-dd'T'HH:mm") LocalDateTime sessionTime,
+            @RequestParam("sessionTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime sessionTime,
             @RequestParam("ticketPrice") Double ticketPrice,
-            Model model
+            RedirectAttributes redirectAttributes
     ) {
         if (filmId == null || hallId == null || sessionTime == null || ticketPrice == null) {
-            model.addAttribute("error", "Please fill in all required fields.");
+            redirectAttributes.addFlashAttribute("error", "Please fill in all required fields.");
             return "sessions";
         }
-        Film film = filmsService.getFilmById(filmId);
-        Hall hall = hallsService.getHallById(hallId);
 
-        Session session = new Session(null, ticketPrice, sessionTime, film, hall);
         try {
+            Film film = filmsService.getFilmById(filmId);
+            Hall hall = hallsService.getHallById(hallId);
+
+            Session session = new Session(null, ticketPrice, sessionTime, film, hall);
             sessionsService.addSession(session);
         } catch (Exception e) {
-            model.addAttribute("error", "An error occurred while saving the session into the database");
+            redirectAttributes.addFlashAttribute("error", "An error occurred while saving the session into the database");
         }
-        return "sessions";
+        return "redirect:/admin/panel/sessions";
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,6 @@ public class FilmsController {
             model.addAttribute("films", films);
             return "films";
         } catch (Exception e) {
-            logger.info("error: " + e.getMessage());
             return "films";
         }
     }
@@ -51,13 +51,13 @@ public class FilmsController {
             @RequestParam("ageRestrictions") Integer ageRestrictions,
             @RequestParam("description") String description,
             @RequestParam("poster") MultipartFile poster,
-            Model model
+           RedirectAttributes redirectAttributes
     )  {
         if (title == null || title.trim().isEmpty()
                 || year == null || year == 0
                 || ageRestrictions == null
                 || description == null || description.trim().isEmpty()) {
-            model.addAttribute("error", "Please fill in all required fields.");
+            redirectAttributes.addFlashAttribute("error", "Please fill in all required fields.");
             return "redirect:/admin/panel/films";
         }
         String posterUrl = null;
@@ -74,7 +74,7 @@ public class FilmsController {
                 poster.transferTo(dest);
                 posterUrl = uniqueFileName;
             } catch (SecurityException | IOException e) {
-                model.addAttribute("error", "error while saving the poster");
+                redirectAttributes.addFlashAttribute("error", "error while saving the poster");
                 return "redirect:/admin/panel/films";
             }
 
@@ -84,7 +84,7 @@ public class FilmsController {
             filmsService.addFilm(film);
             return "redirect:/admin/panel/films";
         } catch (Exception e) {
-            model.addAttribute("error", "error while saving the film into the data base");
+            redirectAttributes.addFlashAttribute("error", "error while saving the film into the data base");
             return "redirect:/admin/panel/films";
         }
     }

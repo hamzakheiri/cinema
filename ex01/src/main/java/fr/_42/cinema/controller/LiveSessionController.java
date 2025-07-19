@@ -19,7 +19,7 @@ import java.util.Map;
 @Controller()
 @RequestMapping("/sessions")
 public class LiveSessionController {
-    private SessionsService sessionsService;
+    private final SessionsService sessionsService;
     private final Logger logger = LoggerFactory.getLogger(LiveSessionController.class);
 
     @Autowired

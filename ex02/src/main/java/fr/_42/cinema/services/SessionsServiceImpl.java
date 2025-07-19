@@ -28,4 +28,9 @@ public class SessionsServiceImpl implements SessionsService {
     public List<Session> muchThePatternFilmName(String filmName) {
         return sessionsRepository.findByFilm_TitleContainingIgnoreCase(filmName);
     }
+
+    @Override
+    public Session getSessionById(Long id) {
+        return sessionsRepository.findById(id).orElse(null);
+    }
 }

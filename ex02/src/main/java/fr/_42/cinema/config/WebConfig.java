@@ -1,26 +1,42 @@
 package fr._42.cinema.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 
+import java.util.List;
+import java.util.Properties;
+
 @Configuration
 @EnableWebMvc  // Enable Spring MVC
 @ComponentScan(basePackages = "fr._42.cinema.controller")  // Scan controllers
+@Import(WebSocketConfig.class)  // Import WebSocket configuration
 public class WebConfig implements WebMvcConfigurer {
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
+
+    public WebConfig() {
+        logger.info("=== WEBCONFIG INITIALIZED ===");
+        logger.info("Component scanning package: fr._42.cinema.controller");
+    }
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Bean
     public ViewResolver viewResolver() {
@@ -30,7 +46,6 @@ public class WebConfig implements WebMvcConfigurer {
         resolver.setSuffix(".ftl");
         resolver.setExposeRequestAttributes(true); // Expose HttpServletRequest attributes to the model
         resolver.setExposeSessionAttributes(true);  // Optionally, expose HttpSession attributes too
-        // Optionally, set a name for the request context variable (default is "springMacroRequestContext")
         resolver.setRequestContextAttribute("request");
 
         return resolver;
@@ -40,6 +55,15 @@ public class WebConfig implements WebMvcConfigurer {
     public FreeMarkerConfigurer freeMarkerConfigurer() {
         FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
         configurer.setTemplateLoaderPath("/WEB-INF/JSP/");
+
+        // Configure date and time formatting
+        Properties freemarkerSettings = new Properties();
+        freemarkerSettings.setProperty("date_format", "yyyy-MM-dd");
+        freemarkerSettings.setProperty("time_format", "HH:mm");
+        freemarkerSettings.setProperty("datetime_format", "yyyy-MM-dd HH:mm");
+        freemarkerSettings.setProperty("locale", "en_US");
+
+        configurer.setFreemarkerSettings(freemarkerSettings);
         return configurer;
     }
 
@@ -63,14 +87,15 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
-        // Configure CORS at the Spring MVC level
-        registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-        logger.info("CORS mappings configured");
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        // Configure Jackson message converter to use our custom ObjectMapper
+        // This extends the default converters instead of replacing them
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+        jsonConverter.setObjectMapper(objectMapper);
+
+        // Remove any existing Jackson converter and add our custom one
+        converters.removeIf(converter -> converter instanceof MappingJackson2HttpMessageConverter);
+        converters.add(jsonConverter);
+        logger.info("Jackson message converter configured with custom ObjectMapper");
     }
 }

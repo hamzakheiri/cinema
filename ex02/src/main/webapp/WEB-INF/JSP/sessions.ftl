@@ -34,7 +34,13 @@
                     <tr>
                         <td>${session.film.title}</td>
                         <td>${session.hall.serialNumber}</td>
-                        <td>${session.sessionTime}</td>
+                        <td>
+                            <#if session.sessionTime?is_string>
+                                ${session.sessionTime?replace("T", " ")}
+                            <#else>
+                                ${session.sessionTime?string("yyyy-MM-dd HH:mm")}
+                            </#if>
+                        </td>
                         <td>${session.ticketCost}</td>
                     </tr>
                 </#list>
@@ -50,6 +56,19 @@
     <!-- Form to Create a New Session -->
     <div class="form-container">
         <h3>Create New Session</h3>
+
+        <!-- Success/Error Messages -->
+        <#if success??>
+            <div class="alert alert-success" role="alert">
+                ${success}
+            </div>
+        </#if>
+        <#if error??>
+            <div class="alert alert-danger" role="alert">
+                ${error}
+            </div>
+        </#if>
+
         <#assign ctx = request.contextPath>
         <form action="${ctx}/admin/panel/sessions" method="post">
             <div class="form-group">

@@ -11,4 +11,6 @@ public interface SessionsService {
     List<Session> getSessions();
 
     List<Session> muchThePatternFilmName(String filmName);
+
+    Session getSessionById(Long id);
 }

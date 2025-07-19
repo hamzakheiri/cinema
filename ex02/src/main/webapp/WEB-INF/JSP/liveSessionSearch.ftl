@@ -29,6 +29,29 @@
             border-radius: 4px;
         }
         .result-card p { margin: 10px 0 5px; }
+        .result-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .view-details-btn {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .view-details-btn:hover {
+            background-color: #0056b3;
+            color: white;
+            text-decoration: none;
+        }
     </style>
     <script>
         // Expose the FreeMarker variable "ctx" to JavaScript
@@ -54,9 +77,26 @@
                                         colDiv.append("<img src='https://via.placeholder.com/120x120?text=No+Poster' alt='Poster'>");
                                     }
                                     colDiv.append("<p><strong>Title:</strong> " + session.film.title+ "</p>");
-                                    colDiv.append("<p><strong>Date & Time:</strong> " + session.dateTime + "</p>");
-                                    colDiv.append("<p><strong>Ticket Cost:</strong> " + session.ticketCost + "</p>");
-                                    // colDiv.append("<a href='" + ctx + "/sessions/" + session.id + "'>View Session</a>");
+                                    // Format the session time from ISO format to readable format
+                                    var sessionTime = session.sessionTime;
+                                    if (sessionTime) {
+                                        // Convert "2025-06-27T17:27" to "Jun 27, 2025 at 17:27"
+                                        var date = new Date(sessionTime);
+                                        var formattedDate = date.toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                        }) + ' at ' + date.toLocaleTimeString('en-US', {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                        });
+                                        colDiv.append("<p><strong>Date & Time:</strong> " + formattedDate + "</p>");
+                                    } else {
+                                        colDiv.append("<p><strong>Date & Time:</strong> Not available</p>");
+                                    }
+                                    colDiv.append("<p><strong>Ticket Cost:</strong> $" + session.ticketCost + "</p>");
+                                    colDiv.append("<a href='" + ctx + "/session/" + session.id + "' class='view-details-btn'>View Details</a>");
                                     $("#resultsList").append(colDiv);
                                 });
                             } else {

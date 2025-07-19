@@ -38,7 +38,6 @@ public class SignupController {
                 phoneNumber == null || phoneNumber.trim().isEmpty()) {
 
             model.addAttribute("error", "Please fill in all required fields.");
-            // Return the signup view so the error can be displayed
             return "error"; // This should resolve to your signup.ftl
         }
         User user = new User(null, firstName, lastName, email, password, phoneNumber);

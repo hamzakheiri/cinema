@@ -41,7 +41,6 @@ public class SigninController {
             User user = usersService.singIn(email, password);
             session.setAttribute("user", user);
             session.setMaxInactiveInterval(60 * 20);
-//            return "redirect:/profile";
             return "SignIn Successfully";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());

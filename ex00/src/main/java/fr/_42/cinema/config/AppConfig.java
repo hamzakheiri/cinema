@@ -52,7 +52,6 @@ public class AppConfig {
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-//        logger.info("Creating BCryptPasswordEncoder bean");
         return new BCryptPasswordEncoder();
     }
 

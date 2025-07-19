@@ -83,6 +83,54 @@
         .status-disconnected {
             color: red;
         }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #f0f0f0;
+        }
+        .message.system {
+            background-color: #e7f3ff;
+            font-style: italic;
+        }
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .image-link {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+        .image-link:hover {
+            background-color: #0056b3;
+        }
+        .user-sessions {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .user-sessions table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .user-sessions th, .user-sessions td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .user-sessions th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -97,19 +145,94 @@
     <div class="chat-container">
         <div class="chat-header">
             <h3>Film ID: <span id="film-id">${filmId}</span></h3>
+            <p>Welcome <strong>${anonymousName}</strong> | Your IP: ${userIp}</p>
         </div>
-        <div id="chat-messages" class="chat-messages"></div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Load existing messages -->
+            <#if messages?? && messages?size gt 0>
+                <#list messages as msg>
+                    <div class="message">
+                        <strong>${msg.sender}</strong> (
+                        <#if msg.timestamp?is_string>
+                            ${msg.timestamp?substring(11, 16)}
+                        <#else>
+                            ${msg.timestamp?string("HH:mm")}
+                        </#if>
+                        ): ${msg.content}
+                    </div>
+                </#list>
+            <#else>
+                <div class="message system">No messages yet. Start the conversation!</div>
+            </#if>
+        </div>
         <div class="chat-input">
-            <input type="text" id="sender" placeholder="Your name" />
+            <input type="text" id="sender" placeholder="Your name" value="${anonymousName}" />
             <input type="text" id="message" placeholder="Type a message..." />
             <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
         </div>
     </div>
 
-    <#assign ctx = request.contextPath />
-    <div style="display: none;">
-        <span id="context-path">${ctx}</span>
+    <!-- Image Upload Section -->
+    <div class="upload-section">
+        <h3>Upload Avatar (${anonymousName})</h3>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="file-input" accept="image/*" />
+            <button type="button" onclick="uploadImage()">Upload</button>
+        </form>
+        <div id="upload-result"></div>
+
+        <h4>Your Uploaded Images</h4>
+        <div id="image-list"></div>
     </div>
+
+    <!-- User Sessions Section -->
+    <div class="user-sessions">
+        <h3>User Authentication History</h3>
+        <div class="sessions-list">
+            <#if userSessions?? && userSessions?size gt 0>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>IP Address</th>
+                            <th>Login Time</th>
+                            <th>Last Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <#list userSessions as session>
+                            <tr>
+                                <td>${session.userId}</td>
+                                <td>${session.ipAddress}</td>
+                                <td>
+                                    <#if session.loginTime?is_string>
+                                        ${session.loginTime?replace("T", " ")}
+                                    <#else>
+                                        ${session.loginTime?string("yyyy-MM-dd HH:mm:ss")}
+                                    </#if>
+                                </td>
+                                <td>
+                                    <#if session.lastActivity?is_string>
+                                        ${session.lastActivity?replace("T", " ")}
+                                    <#else>
+                                        ${session.lastActivity?string("yyyy-MM-dd HH:mm:ss")}
+                                    </#if>
+                                </td>
+                            </tr>
+                        </#list>
+                    </tbody>
+                </table>
+            <#else>
+                <p>No user sessions found.</p>
+            </#if>
+        </div>
+    </div>
+
+<#assign ctx = request.contextPath>
+<div style="display: none;">
+    <span id="context-path">${ctx}</span>
+</div>
+
 <#noparse>
     <script>
         let stompClient = null;
@@ -142,7 +265,14 @@
         function connect() {
             try {
                 // Get the context path from the page
-                const contextPath = document.getElementById('context-path').textContent.trim();
+                const contextPathElement = document.getElementById('context-path');
+                console.log('Context path element:', contextPathElement);
+                if (!contextPathElement) {
+                    console.error('context-path element not found!');
+                    addMessage('System', 'Error: context-path element not found', 'system');
+                    return;
+                }
+                const contextPath = contextPathElement.textContent.trim();
                 console.log(`Using context path: ${contextPath}`);
 
                 // Build the WebSocket URL with the context path
@@ -236,7 +366,8 @@
                 // Create a message that matches the ChatMessage class structure
                 const chatMessage = {
                     sender: username,
-                    content: content
+                    content: content,
+                    userIp: '${userIp}'
                 };
 
                 console.log("Sending chat message:", chatMessage);
@@ -271,8 +402,72 @@
 
             // Auto-connect when page loads
             setTimeout(connect, 500);
+            // loadImageList will be called from outside noparse section
         });
     </script>
 </#noparse>
+
+<script>
+    // Image upload function (outside noparse so FreeMarker can process ${ctx})
+    function uploadImage() {
+        const fileInput = document.getElementById('file-input');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            document.getElementById('upload-result').innerHTML = '<p style="color: red;">Please select a file</p>';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('${ctx}/images', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            document.getElementById('upload-result').innerHTML = '<p style="color: green;">' + result + '</p>';
+            loadImageList();
+            fileInput.value = '';
+        })
+        .catch(error => {
+            document.getElementById('upload-result').innerHTML = '<p style="color: red;">Upload failed: ' + error + '</p>';
+        });
+    }
+
+    // Load available images (outside noparse so FreeMarker can process ${ctx})
+    function loadImageList() {
+        fetch('${ctx}/images/list')
+        .then(response => response.json())
+        .then(images => {
+            const imageListDiv = document.getElementById('image-list');
+            imageListDiv.innerHTML = '';
+
+            if (images.length === 0) {
+                imageListDiv.innerHTML = '<p>No images uploaded yet.</p>';
+            } else {
+                images.forEach(imageInfo => {
+                    const link = document.createElement('a');
+                    link.href = '${ctx}/images/' + imageInfo.storedName;
+                    link.target = '_blank';
+                    link.className = 'image-link';
+                    link.textContent = imageInfo.originalName;
+                    link.title = 'Uploaded: ' + imageInfo.uploadTime;
+                    imageListDiv.appendChild(link);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load image list:', error);
+        });
+    }
+
+    // Load images when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadImageList();
+    });
+</script>
+
 </body>
 </html>

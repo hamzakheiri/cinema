@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -42,10 +43,10 @@ public class HallsController {
     public String hallsPost(
             @RequestParam("serialNumber") String serialNumber,
             @RequestParam("seats") int seats,
-            Model model
+            RedirectAttributes redirectAttributes
     ) {
         if (serialNumber == null || serialNumber.trim().isEmpty() || seats <= 0) {
-            model.addAttribute("error", "Please fill in all required fields.");
+            redirectAttributes.addFlashAttribute("error", "Please fill in all required fields.");
             return "halls";
         }
         Hall hall = new Hall(null, serialNumber, seats);
@@ -53,9 +54,8 @@ public class HallsController {
             hallsService.addHall(hall);
             return "redirect:/admin/panel/halls";
         } catch (Exception e) {
-            model.addAttribute("error", "An error occurred during adding hall. Please try again.");
+            redirectAttributes.addFlashAttribute("error", "An error occurred while saving the hall into the database");
         }
         return "halls";
     }
 }
-

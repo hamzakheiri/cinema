@@ -26,23 +26,18 @@ public class ImageController {
 
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<byte[]> serveImage(@PathVariable("filename") String filename) {
-        logger.info("imageDir: {}", imageDir);
-        logger.info("Serving image: " + filename);
-        try {
+       try {
             Path file = Paths.get(imageDir).resolve(filename);
             byte[] image = Files.readAllBytes(file);
 
-            // Determine MediaType dynamically
             String mimeType = Files.probeContentType(file);
             MediaType mediaType = mimeType != null ? MediaType.parseMediaType(mimeType) : MediaType.APPLICATION_OCTET_STREAM;
-            logger.info("Detected MediaType: " + mediaType); // Add logging
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(mediaType);
 
             return new ResponseEntity<>(image, headers, HttpStatus.OK);
         } catch (IOException e) {
-            logger.error("Error serving image: " + filename, e); // Log the exception
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }

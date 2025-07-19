@@ -5,6 +5,6 @@ import org.hibernate.type.descriptor.converter.spi.JpaAttributeConverter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
+@Repository("filmsRepository")
 public interface FilmsRepository extends JpaRepository<Film, Long> {
 }
