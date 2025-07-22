@@ -92,7 +92,7 @@
 
             <div class="form-group">
                 <label for="poster">Upload Poster</label>
-                <input type="file" id="poster" name="poster" class="form-control-file" accept="image/*" required>
+                <input type="file" id="poster" name="poster" class="form-control-file" accept="image/*">
             </div>
 
             <button type="submit" class="btn btn-primary">Add film</button>
