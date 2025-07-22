@@ -49,7 +49,6 @@ public class FilmChatController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        // Get or create user ID and set cookie
         String currentUserId = userService.getOrCreateUserId(userId, request.getRemoteAddr());
         if (!currentUserId.equals(userId)) {
             Cookie userCookie = new Cookie("userId", currentUserId);

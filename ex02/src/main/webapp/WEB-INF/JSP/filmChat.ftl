@@ -248,7 +248,7 @@
     </style>
 </head>
 <body>
-<h1>🎬 Film Chat</h1>
+<h1> Film Chat</h1>
 
 <div class="chat-container">
     <div class="chat-header">
@@ -299,7 +299,7 @@
 
 <!-- User Sessions Section -->
 <div class="section">
-    <h3>👥 User Authentication History</h3>
+    <h3> User Authentication History</h3>
     <div class="sessions-list">
         <#if userSessions?? && userSessions?size gt 0>
             <table class="sessions-table">
@@ -350,7 +350,6 @@
         let stompClient = null;
         let username = '';
 
-        // Get filmId from the page
         const filmId = document.getElementById('film-id').textContent;
 
         function addMessage(sender, content, type = 'other') {
@@ -387,7 +386,6 @@
                 const contextPath = contextPathElement.textContent.trim();
                 console.log(`Using context path: ${contextPath}`);
 
-                // Build the WebSocket URL with the context path
                 const sockJsUrl = contextPath + '/ws';
                 console.log(`Connecting to SockJS at: ${sockJsUrl}`);
 
@@ -412,24 +410,20 @@
                                     parsedMessage.sender === 'system' ? 'system' : 'other';
                                 addMessage(parsedMessage.sender, parsedMessage.content, messageType);
                             } catch (e) {
-                                // If it's not JSON, just display as is
                                 addMessage('System', message.body, 'system');
                             }
                         });
-
-                        // Add a subtle system message to show connection
-                        addMessage('System', '✅ Connected to chat', 'system');
+                        addMessage('System', 'Connected to chat', 'system');
                     },
                     (error) => {
                         console.error("STOMP connection error:", error);
-                        addMessage('System', '❌ Error connecting to chat server. Retrying...', 'system');
-                        // Auto-retry connection after 3 seconds
+                        addMessage('System', 'Error connecting to chat server. Retrying...', 'system');
                         setTimeout(connect, 3000);
                     }
                 );
             } catch (e) {
                 console.error("Connection exception:", e);
-                addMessage('System', '❌ Error: ' + e.message, 'system');
+                addMessage('System', ' Error: ' + e.message, 'system');
             }
         }
 
@@ -437,19 +431,18 @@
             if (stompClient !== null) {
                 stompClient.disconnect();
                 stompClient = null;
-                addMessage('System', '👋 Disconnected from chat', 'system');
+                addMessage('System', 'Disconnected from chat', 'system');
             }
         }
 
         function sendMessage() {
             try {
                 if (!stompClient || !stompClient.connected) {
-                    addMessage('System', '⚠️ Connecting to chat server...', 'system');
+                    addMessage('System', ' Connecting to chat server...', 'system');
                     connect();
                     return;
                 }
 
-                // Get the sender name and message content
                 const senderInput = document.getElementById('sender');
                 const messageInput = document.getElementById('message');
 
@@ -506,15 +499,12 @@
                 }
             });
 
-            // Auto-connect when page loads
             setTimeout(connect, 500);
-            // loadImageList will be called from outside noparse section
         });
     </script>
 </#noparse>
 
 <script>
-    // Image upload function (outside noparse so FreeMarker can process ${ctx})
     function uploadImage() {
         const fileInput = document.getElementById('file-input');
         const file = fileInput.files[0];
@@ -545,7 +535,6 @@
             });
     }
 
-    // Load available images (outside noparse so FreeMarker can process ${ctx})
     function loadImageList() {
         fetch('${ctx}/images/list')
             .then(response => response.json())

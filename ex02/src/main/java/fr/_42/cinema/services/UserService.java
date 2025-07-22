@@ -18,7 +18,6 @@ public class UserService {
     
     public String getOrCreateUserId(String existingUserId, String ipAddress) {
         if (existingUserId != null && !existingUserId.isEmpty()) {
-            // Update last activity for existing user
             Optional<UserSession> session = userSessionRepository.findByUserId(existingUserId);
             if (session.isPresent()) {
                 UserSession userSession = session.get();
@@ -28,7 +27,6 @@ public class UserService {
             }
         }
 
-        // Create new user
         String newUserId = UUID.randomUUID().toString();
         UserSession userSession = new UserSession(newUserId, ipAddress);
         userSessionRepository.save(userSession);
@@ -40,9 +38,7 @@ public class UserService {
             return "Anonymous";
         }
 
-        // Generate a simple anonymous name based on user ID
-        // Take first 8 characters of UUID for uniqueness
-        String shortId = userId.substring(0, Math.min(8, userId.length()));
+       String shortId = userId.substring(0, Math.min(8, userId.length()));
         return "User_" + shortId;
     }
     

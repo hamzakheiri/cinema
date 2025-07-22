@@ -60,7 +60,7 @@
         $(document).ready(function() {
             $("#searchInput").on("keyup", function() {
                 var filmName = $(this).val().trim();
-                if (filmName.length > 1) {  // Trigger search if more than one character is entered
+                if (filmName.length > 1) {
                     $.ajax({
                         url: ctx + "/sessions/search",
                         method: "GET",
